@@ -1,0 +1,33 @@
+version: '3'
+
+services: 
+
+  app: 
+    build: 
+      context: .
+    container_name: app
+    entrypoint: dockerize -wait tcp://mysql:3306 -timeout 20s docker-entrypoint.sh
+    networks:
+      - app-network
+    tty: true
+    ports: 
+      - "80:8080"
+    depends_on: 
+      - mysql
+
+  mysql: 
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: mysql
+    restart: always
+    tty: true
+    environment: 
+      - MYSQL_DATABASE=customerapi
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=root
+    networks: 
+      - app-network
+
+networks: 
+  app-network:
+    driver: bridge
