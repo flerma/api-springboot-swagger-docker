@@ -6,17 +6,18 @@ services:
     build: 
       context: .
     container_name: app
-    entrypoint: dockerize -wait tcp://mysql:3306 -timeout 20s docker-entrypoint.sh
+    entrypoint: dockerize -wait tcp://mysql:3306 -timeout 20s java -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar
     networks:
       - app-network
     tty: true
     ports: 
-      - "80:8080"
+      - "8080:8080"
+    restart: on-failure
     depends_on: 
       - mysql
 
   mysql: 
-    image: mysql:5.7
+    image: mysql:latest
     command: --innodb-use-native-aio=0
     container_name: mysql
     restart: always
@@ -25,6 +26,8 @@ services:
       - MYSQL_DATABASE=customerapi
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_USER=root
+    ports: 
+      - "3306:3306"
     networks: 
       - app-network
 
